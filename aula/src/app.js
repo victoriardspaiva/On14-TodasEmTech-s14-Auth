@@ -1,7 +1,8 @@
-require("dontenv-safe").config()
 const express = require("express")
 const mongoose = require("mongoose")
+// const dontenv = require("dontenv-safe")
 
+require("dotenv-safe").config()
 
 const app = express()
 
