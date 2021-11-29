@@ -11,7 +11,7 @@ const getAll = (req, res) => {
   if (!token) {
     return res.status(401).send('erro no header');
   }
-  
+
   colaboradoras.find(function (err, colaboradoras) {
     res.status(200).send(colaboradoras)
   })
@@ -24,13 +24,13 @@ const getAll = (req, res) => {
 
 };
 
-const postColaboradora = (req, res) => {  
+const postColaboradora = (req, res) => {
   let colaboradora = new colaboradoras(req.body);
-  
+
   // ajustar isso
-  let newSenha = bcrypt.hashSync(req.body.password, 10)  
+  let newSenha = bcrypt.hashSync(req.body.password, 10)
   colaboradora.password = newSenha
-  
+
   console.log(colaboradora);
   colaboradora.save(function (err) {
     if (err) res.status(500).send({ message: err.message })
@@ -39,7 +39,36 @@ const postColaboradora = (req, res) => {
   })
 };
 
+const login = async(req, res) => {
+  try {
+    const user = colaboradoras.findOne({ email: req.body.email })
+
+    if (!user) {
+      return res.status(422).send({ message: `Email não encontrado!` })
+    }
+    const checkPassword = await bcr
+       ypt.compare(req.body.password, user.password)
+
+    if (!checkPassword) {
+      res.status(422).send({ message: `Senha incorreta!` })
+    }
+
+    const token = jwt.sign({ id: user._id }, secret)
+
+    res.status(200).json({
+      message: `Token deu bom!`,
+      token
+    })
+
+  } catch (e) {
+    res.status(500).json({
+      message: e.message
+    })
+  }
+}
+
 module.exports = {
   getAll,
   postColaboradora,
+  login
 }
